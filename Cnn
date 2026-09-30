@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Daily Chronicle | Live News</title>
+    <style>
+        :root {
+            --primary: #1a365d;
+            --secondary: #c53030;
+            --dark: #2d3748;
+            --light: #f7fafc;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--light); color: var(--dark); padding-bottom: 60px; }
+        
+        /* Header & Navigation */
+        header { background-color: var(--primary); color: white; padding: 1.5rem; text-align: center; border-bottom: 4px solid var(--secondary); }
+        header h1 { font-family: Georgia, serif; font-size: 2.5rem; letter-spacing: 1px; }
+        nav { background: white; display: flex; justify-content: center; gap: 15px; padding: 0.8rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        nav button { background: none; border: none; font-size: 1rem; font-weight: 600; color: var(--dark); cursor: pointer; padding: 5px 10px; transition: 0.2s; }
+        nav button:hover, nav button.active { color: var(--secondary); border-bottom: 2px solid var(--secondary); }
+
+        /* Main Layout */
+        .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; display: grid; grid-template-columns: 3fr 1fr; gap: 2rem; }
+        @media (max-width: 768px) { .container { grid-template-columns: 1fr; } }
+
+        /* Articles Grid */
+        .news-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+        .card { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; flex-direction: column; transition: 0.3s; }
+        .card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px rgba(0,0,0,0.1); }
+        .card img { width: 100%; height: 200px; object-fit: cover; background: #e2e8f0; }
+        .card-content { padding: 1.2rem; display: flex; flex-direction: column; flex-grow: 1; }
+        .badge { background: var(--secondary); color: white; font-size: 0.75rem; text-transform: uppercase; padding: 3px 8px; border-radius: 4px; align-self: flex-start; margin-bottom: 0.5rem; font-weight: bold; }
+        .card h3 { font-family: Georgia, serif; font-size: 1.3rem; margin-bottom: 0.5rem; line-height: 1.4; }
+        .card p { font-size: 0.95rem; color: #4a5568; line-height: 1.6; margin-bottom: 1rem; }
+        .card-footer { margin-top: auto; font-size: 0.8rem; color: #718096; border-top: 1px solid #edf2f7; padding-top: 0.8rem; }
+
+        /* Sidebar */
+        aside { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); height: fit-content; }
+        aside h2 { font-family: Georgia, serif; font-size: 1.4rem; margin-bottom: 1rem; border-bottom: 2px solid var(--primary); padding-bottom: 0.5rem; }
+        .ticker-item { padding: 0.8rem 0; border-bottom: 1px solid #edf2f7; font-size: 0.9rem; font-weight: 500; }
+
+        /* Editor Admin Panel */
+        .admin-toggle { position: fixed; bottom: 20px; right: 20px; background: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 50px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 1000; }
+        .admin-panel { position: fixed; bottom: 80px; right: 20px; width: 350px; background: white; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); padding: 1.5rem; display: none; z-index: 1000; border: 1px solid #e2e8f0; }
+        .admin-panel.active { display: block; }
+        .admin-panel h2 { font-size: 1.2rem; margin-bottom: 1rem; color: var(--primary); }
+        .form-group { margin-bottom: 0.8rem; }
+        .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 3px; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 0.9rem; }
+        .admin-btn { background: #48bb78; color: white; border: none; width: 100%; padding: 10px; border-radius: 4px; font-weight: bold; cursor: pointer; margin-top: 0.5rem; }
+        .admin-btn:hover { background: #38a169; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>THE DAILY CHRONICLE</h1>
+        <p>Your Trusted Source for Live, Independent Breaking News</p>
+    </header>
+
+    <nav id="categories-nav">
+        <button class="active" onclick="filterCategory('all')">All News</button>
+        <button onclick="filterCategory('world')">World</button>
+        <button onclick="filterCategory('tech')">Technology</button>
+        <button onclick="filterCategory('sports')">Sports</button>
+        <button onclick="filterCategory('entertainment')">Entertainment</button>
+    </nav>
+
+    <div class="container">
+        <!-- Main News Feed -->
+        <main class="news-grid" id="news-feed">
+            <!-- Articles will be generated here -->
+        </main>
+
+        <!-- Sidebar Bulletin -->
+        <aside>
+            <h2>Live Updates</h2>
+            <div id="ticker">
+                <div class="ticker-item">⚡ Breaking: New innovations changing web development limits.</div>
+                <div class="ticker-item">🌍 Global markets show steady growth in morning trading session.</div>
+                <div class="ticker-item">🌤️ Local weather outlook promises clear skies through the weekend.</div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Admin Panel Interface -->
+    <button class="admin-toggle" onclick="toggleAdmin()">✍️ Editor Access</button>
+    <div class="admin-panel" id="adminPanel">
+        <h2>Post New Article</h2>
+        <div class="form-group">
+            <label>Headline</label>
+            <input type="text" id="postTitle" placeholder="Enter catchy title...">
+        </div>
+        <div class="form-group">
+            <label>Category</label>
+            <select id="postCategory">
+                <option value="world">World</option>
+                <option value="tech">Technology</option>
+                <option value="sports">Sports</option>
+                <option value="entertainment">Entertainment</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Image URL (Leave blank for default)</label>
+            <input type="text" id="postImage" placeholder="https://example.com">
+        </div>
+        <div class="form-group">
+            <label>Article Content</label>
+            <textarea id="postContent" rows="4" placeholder="Write news text here..."></textarea>
+        </div>
+        <button class="admin-btn" onclick="publishArticle()">Publish Story</button>
+    </div>
+
+    <script>
+        // Default secret editor access phrase
+        const EDITOR_PASSWORD = "newsadmin123";
+        
+        // Starting Demo Articles
+        const defaultArticles = [
+            {
+                id: 1,
+                title: "Global Tech Summit Unveils Next-Generation AI Models",
+                category: "tech",
+                image: "https://unsplash.com",
+                content: "Tech leaders gathered today to announce breakthrough systems capable of writing entire website architectures dynamically, signaling a massive leap forward for open-source development workflows.",
+                date: "Just now"
+            },
+            {
+                id: 2,
+                title: "Championship Underdog Secures Dramatic Final Minute Victory",
+                category: "sports",
+                image: "https://unsplash.com",
+                content: "Against all algorithmic predictions, the hometown favorites pulled off a stunning upset in the final seconds of play, sending fans worldwide into absolute celebration.",
+                date: "2 hours ago"
+            }
+        ];
+
+        // Load items from local browser memory, or use defaults
+        let articles = JSON.parse(localStorage.getItem('news_articles')) || defaultArticles;
+
+        function renderArticles(filter = 'all') {
+            const feed = document.getElementById('news-feed');
+            feed.innerHTML = '';
+            
+            const filtered = filter === 'all' ? articles : articles.filter(a => a.category === filter);
+            
+            if(filtered.length === 0) {
+                feed.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #718096; padding: 2rem;">No articles published under this category yet.</p>`;
+                return;
+            }
+
+            // Reverse order to show newest posts first
+            [...filtered].reverse().forEach(art => {
+                const imgUrl = art.image || "https://unsplash.com";
+                feed.innerHTML += `
+                    <article class="card">
+                        <img src="${imgUrl}" alt="News Image">
+                        <div class="card-content">
+                            <span class="badge">${art.category}</span>
+                            <h3>${art.title}</h3>
+                            <p>${art.content}</p>
+                            <div class="card-footer">Published: ${art.date}</div>
+                        </div>
+                    </article>
+                `;
+            });
+        }
+
+        function filterCategory(cat) {
+            document.querySelectorAll('#categories-nav button').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            renderArticles(cat);
+        }
+
+        let isAdminAuthenticated = false;
+        function toggleAdmin() {
+            if (!isAdminAuthenticated) {
+                let password = prompt("Enter Editor Access Password:");
+                if (password === EDITOR_PASSWORD) {
+                    isAdminAuthenticated = true;
